@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <body>
+        <a id="openid">click</a>
+        <script src="http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js"></script>
+        <script>
+
+            var Y = YUI( {
+                modules: {
+                    'gallery-storage-lite': {
+                        fullpath: 'http://yui.yahooapis.com/gallery-2010.02.22-22/build/gallery-storage-lite/gallery-storage-lite-min.js',
+                        requires: ['event-base','event-custom','event-custom-complex','json'],
+                        optional: [],
+                        supersedes: []
+                  }
+
+                }
+            } );
+            function handleIoComplete( data ){
+                Y.Node.get('#openid').set('href', data.query.results.success);
+            }
+            Y.use( 'node', 'gallery-storage-lite', function (Y) {
+                var handleStorageReady = function () {
+                        var returnTo = 'http://example.erikeldridge.com/yql/openid/example.verify.html';
+                        var tableUri = 'http://github.com/erikeldridge/yql-tables/raw/master/openid/openid.xml';
+                        // var tableUri = 'http://test.erikeldridge.com/yql/openid/openid.xml';
+                        
+                        var assoc = Y.StorageLite.getItem('openid-assoc', true);
+                        
+                        if(!assoc){
+                            Y.Node.get('#openid')
+                                .set('href', 'example.assoc.html')
+                                .set('innerHTML', 'association required for verified auth.  click here to create one');
+                            return;
+                        }
+                        Y.log(assoc);
+                        var assocHandle = assoc.query.results.success.assoc_handle,
+                
+                            //attribute exchange (http://developer.yahoo.net/blog/archives/2009/12/yahoo_openid_now_with_attribute_exchange.html)
+                            axJson = Y.JSON.stringify([{
+                            	'schema':'http://axschema.org/contact/email',
+                            	'alias': 'email',
+                            	'required':true
+                            },
+                            {
+                            	'schema':'http://axschema.org/namePerson',
+                            	'alias':'fullname',
+                            	'required':true
+                            },
+                            {
+                            	'schema':'http://axschema.org/media/image/default',
+                            	'alias':'profile_pic',
+                            	'required':true
+                            },
+                            {
+                            	'schema':'http://axschema.org/person/gender',
+                            	'alias':'gender',
+                            	'required':true
+                            }
+                            ]),
+                    
+                            //hybrid auth (http://developer.yahoo.net/blog/archives/2009/09/yahoo_openid_hybrid.html)
+                            oauthKey = 'dj0yJmk9TDNTVXpvRnpsbjJHJmQ9WVdrOVpXRlBkWEJETm1zbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0wYw--',
+                    
+                            params = [
+                                'q='+encodeURIComponent('use "'+tableUri+'" as table; '
+                                    + 'select * from table where '
+                                    + 'id="yahoo.com" and '
+                                    + 'return_to="'+returnTo+'" and '
+                                    + 'assoc_handle="'+assocHandle+'" and '
+                                    // + "axJson='"+axJson+"' and "
+                                    + "oauthKey='"+oauthKey+"'"),
+                                'callback=handleIoComplete',
+                                'diagnostics=true',
+                                'format=json',
+                                'debug=true'
+                            ],
+                            url = "https://query.yahooapis.com/v1/public/yql?"+params.join('&');
+                        Y.Get.script( url );
+                    };
+            
+                //run test.assoc.html first to store assoc fields
+                Y.StorageLite.on( 'storage-lite:ready', handleStorageReady );
+            });
+        </script>
+    </body>
+</html>

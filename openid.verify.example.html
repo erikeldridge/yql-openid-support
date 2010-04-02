@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <body>
+        <div id="results">results</div>
+        <script src="http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js"></script>
+        <script>
+        
+        var Y = YUI({
+        	modules: {
+        		'gallery-storage-lite': {
+        			fullpath: 'http://yui.yahooapis.com/gallery-2010.02.22-22/build/gallery-storage-lite/gallery-storage-lite-min.js',
+        			requires: ['event-base', 'event-custom', 'event-custom-complex', 'json'],
+        			optional: [],
+        			supersedes: []
+        		}
+        	}
+        });
+        
+        function handleIoComplete ( data ) {
+        	Y.Node.get('#results').set('innerHTML', data.query.results.success);
+        }
+        
+        function parseQueryString (string) {
+            var params = string.split( '&' ),
+                pairs = {};
+            for (var i in params ) {
+                var pair = params[i].split( '=' );
+                pairs[ pair[0] ] = decodeURIComponent( pair[1] );
+            }
+            return pairs;
+        }
+
+        function handleStorageReady () {
+            var tableUri = 'http://github.com/erikeldridge/yql-tables/raw/master/openid/openid.verify.xml';
+        	var localUrl = document.location.href.substr( 0, document.location.href.indexOf('?') ),
+        	    nonceStoreUri = 'http://example.com/nonces/',
+        	    assocJson = encodeURIComponent( Y.JSON.stringify( Y.StorageLite.getItem('openid-assoc', true).query.results.success ) ),
+        	    assertJson = encodeURIComponent( 
+        	        Y.JSON.stringify( 
+        	            parseQueryString( document.location.href.substr( document.location.href.indexOf('?') + 1 ) ) 
+        	        ) 
+        	    ),
+        		params = [
+		    
+        		    // for some reason, using @param w/ json results in json.parse error in yql, so pass json in query string
+        		    'q=' + encodeURIComponent('use "'+tableUri+'" as table;'
+        		        +"select * from table where assocJson='"+assocJson+"' and assertJson='"+assertJson
+        		        +"' and localUrl='"+localUrl+"'"
+                    ), 
+                    'callback=handleIoComplete', 
+                    'diagnostics=true', 
+                    'format=json', 
+                    'debug=true'
+                ],
+        		url = "https://query.yahooapis.com/v1/public/yql?" + params.join('&');
+        	Y.Get.script( url );
+        }
+        
+        Y.use( 'io', 'gallery-storage-lite', function( Y ){
+            Y.StorageLite.on('storage-lite:ready', handleStorageReady );
+        } );
+        
+        </script>
+    </body>
+</html>
