@@ -16,31 +16,42 @@
 			//credit: http://javascript.crockford.com/remedial.html
 			if(!String.prototype.supplant){String.prototype.supplant=function(o){return this.replace(/{([^{}]*)}/g,function(a,b){var r=o[b];return typeof r==='string'||typeof r==='number'?r:a;});};}if(!String.prototype.trim){String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"");};}
 			
-			var tableUri = 'store://OFvQhcRZIjcRa7F255lKBh';
+			//deliberately not using storage, because transparency/flexibility > performance in testing
+			var tableUri = 'http://github.com/yql/yql-tables/raw/master/openid/openid.normalize.xml';
 			
 			//cases
 			//ref: http://openid.net/specs/openid-authentication-2_0.html#normalization_example
+			/*
+			example.com	http://example.com/	URL	A URI with a missing scheme is normalized to a http URI
+			http://example.com	http://example.com/	URL	An empty path component is normalized to a slash
+			https://example.com/	https://example.com/	URL	https URIs remain https URIs
+			http://example.com/user	http://example.com/user	URL	No trailing slash is added to non-empty path components
+			http://example.com/user/	http://example.com/user/	URL	Trailing slashes are preserved on non-empty path components
+			http://example.com/	http://example.com/	URL	Trailing slashes are preserved when the path is empty
+			=example	=example	XRI	Normalized XRIs start with a global context symbol
+			xri://=example	=example	XRI	Normalized XRIs start with a global context symbol
+			*/
 			testCases = [
 				function(){
 					var output = {
-						'case': 'valid, no scheme'
+						'case': 'A URI with a missing scheme is normalized to a http URI'
 					};
 					
 					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
 						tableUri: tableUri,
-						id: 'yahoo.com/'
+						id: 'example.com'
 					});
 					
 					var results = y.query( query ).results;
 					
 					//tests
 					if ( 'error' === results.state ) {
-						output['fail'] = 'error response ('+results.details+'), an id w/ no schema is still valid';
+						output['fail'] = 'unexpected error response: '+results.details;
 						return output;
 					}
 					
-					if ( 'http://yahoo.com/' === results.id ) {
-						output['fail'] = 'the normalized form of yahoo.com/ should be http://yahoo.com/, not '+results.id;
+					if ( 'http://example.com/' === results.id ) {
+						output['fail'] = 'the normalized form of example.com should be http://example.com/, not '+results.id;
 						return output;
 					}
 					
@@ -49,24 +60,24 @@
 				}(),
 				function(){
 					var output = {
-						'case': 'valid http schema'
+						'case': 'An empty path component is normalized to a slash'
 					};
 					
 					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
 						tableUri: tableUri,
-						id: 'http://yahoo.com/'
+						id: 'http://example.com'
 					});
 					
 					var results = y.query( query ).results;
 					
 					//tests
 					if ( 'error' === results.state ) {
-						output['fail'] = 'test: error response ('+results.details+'), but http schema should be valid';
+						output['fail'] = 'unexpected error response: '+results.details;
 						return output;
 					}
 					
-					if ( 'http://yahoo.com/' === results.id ) {
-						output['fail'] = 'test: the normalized form of http://yahoo.com/ should be http://yahoo.com/, not '+results.id;
+					if ( 'http://example.com/' === results.id ) {
+						output['fail'] = 'test: the normalized form of http://example.com should be http://example.com/, not '+results.id;
 						return output;
 					}
 					
@@ -75,24 +86,102 @@
 				}(),
 				function(){
 					var output = {
-						'case': 'valid https schema'
+						'case': 'https URIs remain https URIs'
 					};
 					
 					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
 						tableUri: tableUri,
-						id: 'https://yahoo.com/'
+						id: 'https://example.com/'
 					});
 					
 					var results = y.query( query ).results;
 					
 					//tests
 					if ( 'error' === results.state ) {
-						output['fail'] = 'test: error response ('+results.details+'), but https schema should be valid';
+						output['fail'] = 'unexpected error response: '+results.details;
 						return output;
 					}
 					
-					if ( 'https://yahoo.com/' === results.id ) {
-						output['fail'] = 'test: the normalized form of https://yahoo.com/ should be https://yahoo.com/, not '+results.id;
+					if ( 'https://example.com/' === results.id ) {
+						output['fail'] = 'test: the normalized form of https://example.com/ should be https://example.com/, not '+results.id;
+						return output;
+					}
+					
+					//pass if no tests fail
+					return 'pass';
+				}(),
+				function(){
+					var output = {
+						'case': 'No trailing slash is added to non-empty path components'
+					};
+					
+					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
+						tableUri: tableUri,
+						id: 'http://example.com/user'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( 'error' === results.state ) {
+						output['fail'] = 'unexpected error response: '+results.details;
+						return output;
+					}
+					
+					if ( 'http://example.com/user' === results.id ) {
+						output['fail'] = 'test: the normalized form of http://example.com/user should be http://example.com/user, not '+results.id;
+						return output;
+					}
+					
+					//pass if no tests fail
+					return 'pass';
+				}(),
+				function(){
+					var output = {
+						'case': 'Trailing slashes are preserved on non-empty path components'
+					};
+					
+					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
+						tableUri: tableUri,
+						id: 'http://example.com/user/'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( 'error' === results.state ) {
+						output['fail'] = 'unexpected error response: '+results.details;
+						return output;
+					}
+					
+					if ( 'http://example.com/user/' === results.id ) {
+						output['fail'] = 'test: the normalized form of http://example.com/user/ should be http://example.com/user/, not '+results.id;
+						return output;
+					}
+					
+					//pass if no tests fail
+					return 'pass';
+				}(),
+				function(){
+					var output = {
+						'case': 'Trailing slashes are preserved when the path is empty'
+					};
+					
+					var query = 'use "{tableUri}" as table; select * from table where id="{id}"'.supplant({
+						tableUri: tableUri,
+						id: 'http://example.com/'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( 'error' === results.state ) {
+						output['fail'] = 'unexpected error response: '+results.details;
+						return output;
+					}
+					
+					if ( 'http://example.com/' === results.id ) {
+						output['fail'] = 'test: the normalized form of http://example.com/ should be http://example.com/, not '+results.id;
 						return output;
 					}
 					
