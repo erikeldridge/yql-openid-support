@@ -14,8 +14,7 @@
 			//credit: http://javascript.crockford.com/remedial.html
 			if(!String.prototype.supplant){String.prototype.supplant=function(o){return this.replace(/{([^{}]*)}/g,function(a,b){var r=o[b];return typeof r==='string'||typeof r==='number'?r:a;});};}if(!String.prototype.trim){String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"");};}
 			
-			//assoc
-			var tableUri = 'store://37gWRS1VrRkTffac1E9eJo';
+			var tableUri = 'http://github.com/yql/yql-tables/raw/master/openid/openid.assoc.xml';
 						
 			//cases
 			//ref: http://openid.net/specs/openid-authentication-2_0.html#normalization_example
