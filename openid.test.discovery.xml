@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table xmlns="http://query.yahooapis.com/v1/schema/table.xsd">
+    <meta>
+        <author>Erik Eldridge</author>
+        <description>Unit tests for openid.assoc.xml</description>
+        <sampleQuery>select * from {table}</sampleQuery>
+		<documentationURL>http://wiki.github.com/ydn/yql-openid-support/</documentationURL>
+    </meta>
+    <bindings>
+        <select>
+            <inputs>
+				<key id="tableUri" type="xs:string" paramType="variable"/>
+			</inputs>
+            <execute><![CDATA[
+
+			//credit: http://javascript.crockford.com/remedial.html
+			if(!String.prototype.supplant){String.prototype.supplant=function(o){return this.replace(/{([^{}]*)}/g,function(a,b){var r=o[b];return typeof r==='string'||typeof r==='number'?r:a;});};}if(!String.prototype.trim){String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"");};}
+			
+			//use default tableuri if no other specified
+			tableUri = tableUri || 'http://www.datatables.org/openid/openid.discover.xml';
+			
+			//cases
+			testCases = [
+				function(){
+					var testName = 'valid yahoo.com';
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : 'http://www.yahoo.com/'
+					});
+					
+					var results = y.query( query ).results;y.log(results);
+					
+					//tests
+					if ( results.error ) {
+						return {
+							name : testName,
+							fail : 'table should return success for valid id "http://yahoo.com/"'
+						};
+					}
+					
+					if ( 'https://open.login.yahooapis.com/openid/op/auth' != results.success ) {
+						return {
+							name : testName,
+							fail : 'table should return "https://open.login.yahooapis.com/openid/op/auth", not ' + results.success
+						};
+					}
+					
+					//pass if no tests fail
+					return {
+						name : testName,
+						pass : ''
+					};
+				}()
+			];
+            
+			response.object = { "case": testCases };
+            
+        ]]></execute>
+        </select>
+    </bindings>
+</table>
