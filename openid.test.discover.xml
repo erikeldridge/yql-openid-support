@@ -51,6 +51,37 @@
 						name : testName,
 						pass : ''
 					};
+				}(),
+				function(){
+					var testName = 'valid flickr id';
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : 'http://flickr.com/erikeldridge'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						return {
+							name : testName,
+							fail : 'table should return success for valid id "http://flickr.com/erikeldridge"'
+						};
+					}
+					
+					if ( 'https://open.login.yahooapis.com/openid/op/auth' != results.success ) {
+						return {
+							name : testName,
+							fail : 'table should return "https://open.login.yahooapis.com/openid/op/auth", not ' + results.success
+						};
+					}
+					
+					//pass if no tests fail
+					return {
+						name : testName,
+						pass : ''
+					};
 				}()
 			];
             
