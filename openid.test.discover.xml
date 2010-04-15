@@ -20,6 +20,7 @@
 			tableUri = tableUri || 'http://www.datatables.org/openid/openid.discover.xml';
 			
 			//cases
+			//ref: http://openid.net/get-an-openid
 			testCases = [
 				function(){
 					var testName = 'valid yahoo.com';
