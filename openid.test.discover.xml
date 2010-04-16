@@ -52,7 +52,7 @@
 						name : caseName,
 						pass : ''
 					};
-				}(),
+				},
 				function(){
 					var caseName = 'valid flickr id';
 					
@@ -83,7 +83,7 @@
 						name : caseName,
 						pass : ''
 					};
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid google id'
@@ -111,7 +111,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid livejournal id'
@@ -139,7 +139,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid hyves id'
@@ -171,7 +171,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid blogger id'
@@ -205,7 +205,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid orange.fr id'
@@ -213,7 +213,7 @@
 					
 					//setup
 					var normalizedId = 'http://orange.fr';
-					var validEndpoint = 'https://www.google.com/accounts/o8/ud?source=profiles';
+					var validEndpoint = 'http://openid.orange.fr/server/';
 					
 					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
 						'tableUri' : tableUri,
