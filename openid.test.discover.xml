@@ -205,6 +205,38 @@
 					}
 					
 					return caseResults;
+				}(),
+				function(){
+					var caseResults = {
+						name : 'valid orange.fr id'
+					};
+					
+					//setup
+					var normalizedId = 'http://orange.fr';
+					var validEndpoint = 'https://www.google.com/accounts/o8/ud?source=profiles';
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : normalizedId
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						caseResults['fail'] = 'table should return success for valid id "'+normalizedId+'"'
+					}
+					
+					if ( validEndpoint != results.success ) {
+						caseResults['fail'] = 'table should return "'+validEndpoint+'", not ' + results.success
+					}
+					
+					//pass if no tests fail
+					if ( !caseResults['fail'] ) {
+						caseResults['pass'] = '';
+					}
+					
+					return caseResults;
 				}()
 			];
             
