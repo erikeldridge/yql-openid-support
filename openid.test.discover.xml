@@ -139,6 +139,38 @@
 					}
 					
 					return caseResults;
+				}(),
+				function(){
+					var caseResults = {
+						name : 'valid hyves id'
+					};
+					
+					//setup
+					var normalizedId = 'http://www.hyves.nl';
+					var validEndpoint = 'https://openid.hyves-api.nl/';
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : normalizedId
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						caseResults['fail'] = 'table should return success for valid id "'+normalizedId+'"'
+					}
+					
+					if ( validEndpoint != results.success ) {
+						caseResults['fail'] = 'table should return "'+validEndpoint+'", not ' + results.success
+					}
+					
+					//pass if no tests fail
+					if ( !caseResults['fail'] ) {
+						caseResults['pass'] = '';
+					}
+					
+					return caseResults;
 				}()
 			];
             
