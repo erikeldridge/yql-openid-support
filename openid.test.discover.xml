@@ -111,6 +111,34 @@
 					}
 					
 					return caseResults;
+				}(),
+				function(){
+					var caseResults = {
+						name : 'valid livejournal id'
+					};
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : 'http://erikeldridge.livejournal.com'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						caseResults['fail'] = 'table should return success for valid id "http://erikeldridge.livejournal.com"'
+					}
+					
+					if ( 'http://www.livejournal.com/openid/server.bml' != results.success ) {
+						caseResults['fail'] = 'table should return "http://www.livejournal.com/openid/server.bml", not ' + results.success
+					}
+					
+					//pass if no tests fail
+					if ( !caseResults['fail'] ) {
+						caseResults['pass'] = '';
+					}
+					
+					return caseResults;
 				}()
 			];
             
