@@ -171,6 +171,40 @@
 					}
 					
 					return caseResults;
+				}(),
+				function(){
+					var caseResults = {
+						name : 'valid blogger id'
+					};
+					
+					//setup
+					var normalizedId = 'http://erikeldridge.blogspot.com';
+					
+					// upgrade blogger to openid 2: http://blog.nerdbank.net/2010/03/how-to-upgrade-your-blogger-openid-to.html
+					var validEndpoint = 'https://www.google.com/accounts/o8/ud?source=profiles';
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : normalizedId
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						caseResults['fail'] = 'table should return success for valid id "'+normalizedId+'"'
+					}
+					
+					if ( validEndpoint != results.success ) {
+						caseResults['fail'] = 'table should return "'+validEndpoint+'", not ' + results.success
+					}
+					
+					//pass if no tests fail
+					if ( !caseResults['fail'] ) {
+						caseResults['pass'] = '';
+					}
+					
+					return caseResults;
 				}()
 			];
             
