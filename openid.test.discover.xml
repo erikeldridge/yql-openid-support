@@ -23,7 +23,7 @@
 			//ref: http://openid.net/get-an-openid
 			testCases = [
 				function(){
-					var testName = 'valid yahoo.com';
+					var caseName = 'valid yahoo.com';
 					
 					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
 						'tableUri' : tableUri,
@@ -35,26 +35,26 @@
 					//tests
 					if ( results.error ) {
 						return {
-							name : testName,
+							name : caseName,
 							fail : 'table should return success for valid id "http://yahoo.com/"'
 						};
 					}
 					
 					if ( 'https://open.login.yahooapis.com/openid/op/auth' != results.success ) {
 						return {
-							name : testName,
+							name : caseName,
 							fail : 'table should return "https://open.login.yahooapis.com/openid/op/auth", not ' + results.success
 						};
 					}
 					
 					//pass if no tests fail
 					return {
-						name : testName,
+						name : caseName,
 						pass : ''
 					};
 				}(),
 				function(){
-					var testName = 'valid flickr id';
+					var caseName = 'valid flickr id';
 					
 					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
 						'tableUri' : tableUri,
@@ -66,23 +66,51 @@
 					//tests
 					if ( results.error ) {
 						return {
-							name : testName,
+							name : caseName,
 							fail : 'table should return success for valid id "http://flickr.com/erikeldridge"'
 						};
 					}
 					
 					if ( 'https://open.login.yahooapis.com/openid/op/auth' != results.success ) {
 						return {
-							name : testName,
+							name : caseName,
 							fail : 'table should return "https://open.login.yahooapis.com/openid/op/auth", not ' + results.success
 						};
 					}
 					
 					//pass if no tests fail
 					return {
-						name : testName,
+						name : caseName,
 						pass : ''
 					};
+				}(),
+				function(){
+					var caseResults = {
+						name : 'valid google id'
+					};
+					
+					var query = 'use "{tableUri}" as table; select * from table where normalizedId = "{normalizedId}"'.supplant({
+						'tableUri' : tableUri,
+						'normalizedId' : 'http://www.google.com/profiles/erikeldridge'
+					});
+					
+					var results = y.query( query ).results;
+					
+					//tests
+					if ( results.error ) {
+						caseResults['fail'] = 'table should return success for valid id "http://www.google.com/profiles/erikeldridge"'
+					}
+					
+					if ( 'https://www.google.com/accounts/o8/ud?source=profiles' != results.success ) {
+						caseResults['fail'] = 'table should return "https://www.google.com/accounts/o8/ud", not ' + results.success
+					}
+					
+					//pass if no tests fail
+					if ( !caseResults['fail'] ) {
+						caseResults['pass'] = '';
+					}
+					
+					return caseResults;
 				}()
 			];
             
