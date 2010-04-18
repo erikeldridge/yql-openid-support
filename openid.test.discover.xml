@@ -3,7 +3,7 @@
     <meta>
         <author>Erik Eldridge</author>
         <description>Unit tests for openid.assoc.xml</description>
-        <sampleQuery>select * from {table}</sampleQuery>
+        <sampleQuery>use 'http://github.com/erikeldridge/yql-tables/raw/master/openid/openid.test.discover.xml' as table; select * from table where tableUri='http://github.com/erikeldridge/yql-tables/raw/master/openid/openid.discover.xml' and run='0,1,2'</sampleQuery>
 		<documentationURL>http://wiki.github.com/ydn/yql-openid-support/</documentationURL>
     </meta>
     <bindings>
@@ -96,14 +96,15 @@
 					});
 					
 					var results = y.query( query ).results;
+					var validEndpoint = 'https://www.google.com/accounts/o8/ud?source=profiles';
 					
 					//tests
 					if ( results.error ) {
 						caseResults['fail'] = 'table should return success for valid id "http://www.google.com/profiles/erikeldridge"'
 					}
 					
-					if ( 'https://www.google.com/accounts/o8/ud?source=profiles' != results.success ) {
-						caseResults['fail'] = 'table should return "https://www.google.com/accounts/o8/ud", not ' + results.success
+					if ( validEndpoint != results.success ) {
+						caseResults['fail'] = 'table should return "'+validEndpoint+'", not ' + results.success
 					}
 					
 					//pass if no tests fail
