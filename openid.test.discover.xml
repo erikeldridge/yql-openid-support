@@ -10,6 +10,7 @@
         <select>
             <inputs>
 				<key id="tableUri" type="xs:string" paramType="variable"/>
+				<key id="run" type="xs:string" paramType="variable"/>
 			</inputs>
             <execute><![CDATA[
 
@@ -52,7 +53,7 @@
 						name : caseName,
 						pass : ''
 					};
-				}(),
+				},
 				function(){
 					var caseName = 'valid flickr id';
 					
@@ -83,7 +84,7 @@
 						name : caseName,
 						pass : ''
 					};
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid google id'
@@ -111,7 +112,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid livejournal id'
@@ -139,7 +140,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid hyves id'
@@ -171,7 +172,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid blogger id'
@@ -205,7 +206,7 @@
 					}
 					
 					return caseResults;
-				}(),
+				},
 				function(){
 					var caseResults = {
 						name : 'valid orange.fr id'
@@ -237,10 +238,23 @@
 					}
 					
 					return caseResults;
-				}()
+				}
 			];
             
-			response.object = { "case": testCases };
+			//runner
+			var caseResults = [];
+			if ( run ) {
+				for each ( var i in run.split( ',' ) ) {
+					caseResults.push( testCases[i]() );
+				}
+			} else {
+				for each ( var testCase in testCases ) {
+					caseResults.push( testCase() );
+				}
+			}
+			
+			//results
+			response.object = { "case": caseResults };
             
         ]]></execute>
         </select>
